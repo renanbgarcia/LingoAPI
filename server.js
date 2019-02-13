@@ -22,8 +22,9 @@ passport.use(new Strategy({
     clientID: '215402490334-nb2ti6j79hki1p8dr7nbms0mqqe6jn42.apps.googleusercontent.com',
     //clientSecret: 'F0rU8bx9idwP0AdJoQaBR9k6',
     clientSecret: 'urH9VjicSoSD_jCyp0tCbMlj',
-    callbackURL: 'http://localhost:3000/auth/google/callback'
+    callbackURL: 'http://localhost:3000/auth/google/callback',
     //callbackURL: process.env.CALLBACKURL
+    userProfileURL: 'https://www.googleapis.com/oauth2/v3/userinfo'
   },
   function(accessToken, refreshToken, profile, cb) {
     console.log('Now Check User');
@@ -71,12 +72,10 @@ passport.deserializeUser(function(obj, cb) {
   cb(null, obj);
 });
 
-
 // cria a aplicação
 var app = express();
 app.use(express.static('public'));
 app.use(cors({ origin: true }));
-
 
 //Import de pacotes necessários
 app.use(require('morgan')('combined'));
