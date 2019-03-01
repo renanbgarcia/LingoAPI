@@ -165,10 +165,24 @@ app.post('/api/save/word', function(req, res) {
 
   //Tira pontuação que pode ter ficado anexado na palavra
   let wordToSave = req.body.word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s{2,}/g," ");
-
+  const today = new Date();
+  const reviewDate = new Date();
+  reviewDate.setDate(today.getDate() + 3);
+  const parsedRevDate = reviewDate.toJSON();
   userModel.findOneAndUpdate({
         googleUser_id: req.body.id
-      }, {$push: { "resources.words": { word: wordToSave, meaning: req.body.meaning, howKnown: req.body.howKnown}  }}, function (err, success) {
+      },{$push: { 
+          "resources.words": 
+            {
+              word: wordToSave,
+              meaning: req.body.meaning,
+              howKnown: req.body.howKnown,
+              EF: 2.5,
+              nextRevision: parsedRevDate,
+              lang: req.body.lang
+            }  
+          }
+        }, function (err, success) {
         if (err) {
           res.send(err) ;
         } else {
@@ -229,7 +243,8 @@ app.post('/api/delete/word', function(req, res) {
         if (err) {
           res.send(err) ;
         } else {
-          //res.send({response: success});
+          console.log("Palavra deletada");
+          res.send({response: success});
         }
       })
     });

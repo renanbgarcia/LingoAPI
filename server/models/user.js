@@ -7,7 +7,8 @@ var userSchema = mongoose.Schema({
     googleUser_id: String,
     level: String,
     score: Number,
-    resources: {words: [{ word: String, meaning: String, howKnown: String}], quote: [{
+    resources: {words: [{ word: String, meaning: String, howKnown: String, EF: Number,
+      nextRevision: String, lang: String}], quote: [{
       quote: String,
       source: String
     }]},
