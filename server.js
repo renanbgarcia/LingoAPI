@@ -146,6 +146,36 @@ app.get('/api/auth', passport.authenticate('jwt', { session: false }),
 
     //Rotas de manipulação do banco
 
+    //Define a meta do usuário
+app.post('/api/set/meta', function(req, res) {
+  userModel.findOneAndUpdate({
+    googleUser_id: req.body.id
+  }, {$set: {"meta": req.body.meta}}, function(err, success) {
+    if (err) {
+      console.log(err);
+      res.send(err);
+    } else {
+      res.send(success);
+    }
+  })
+});
+
+    //Retorna a meta do usuario
+app.post('/api/get/meta', function(req, res) {
+  userModel.findOne({googleUser_id: req.body.id}, function(err, user) {
+    if (err) {console.log(err);}
+    console.log('sucesso');
+    res.send({meta: user.meta});
+  })
+})
+
+/* app.post('/api/get/learnedToday', function(req, res) {
+  userModel.find({googleUser_id: req.body.id}, function(err, user) {
+    if (err) {console.log(err);}
+    res.send({res: user.});
+  })
+}) */
+
     //Salva uma citação para o usuário no banco
 app.post('/api/save/quote', function(req, res) {
   console.log(req.body);
@@ -165,10 +195,13 @@ app.post('/api/save/word', function(req, res) {
 
   //Tira pontuação que pode ter ficado anexado na palavra
   let wordToSave = req.body.word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"").replace(/\s{2,}/g," ");
-  const today = new Date();
+  let today = new Date();
   const reviewDate = new Date();
   reviewDate.setDate(today.getDate() + 3);
   const parsedRevDate = reviewDate.toJSON();
+
+  today.setDate(today.getDate());
+  const parsedToday = today.toJSON();
   userModel.findOneAndUpdate({
         googleUser_id: req.body.id
       },{$push: { 
@@ -179,7 +212,9 @@ app.post('/api/save/word', function(req, res) {
               howKnown: req.body.howKnown,
               EF: 2.5,
               nextRevision: parsedRevDate,
-              lang: req.body.lang
+              reviewedTimes: 3,
+              lang: req.body.lang,
+              lastHowKnown: today.getTime()
             }  
           }
         }, function (err, success) {
@@ -220,20 +255,65 @@ app.post('/api/update/word', function(req, res) {
         })
       }
   if (req.body.state !== '' && req.body.state !== undefined) {
+    var today = new Date();
+    today.setDate(today.getDate());
+/*     const parsedLastHowKnown = today.toJSON(); */
+console.log("testando" + today.getTime());
     console.log(req.body.state);
     userModel.findOneAndUpdate({
           "resources.words._id": req.body.word_id.toString()
-        }, {$set: { "resources.words.$.howKnown": req.body.state }}, function (err, success) {
+        }, {$set: { "resources.words.$.howKnown": req.body.state, "resources.words.$.lastHowKnown": today.getTime()}}, function (err, success) {
           if (err) {
             res.send(err) ;
           } else {
             message = message + ' state';
           }
         })
+    
+  }
+  if (req.body.nRev !== '' && req.body.nRev !== undefined) {
+    console.log(req.body.state);
+    userModel.findOneAndUpdate({
+          "resources.words._id": req.body.word_id.toString()
+        }, {$set: { "resources.words.$.nextRevision": req.body.nRev }}, function (err, success) {
+          if (err) {
+            res.send(err) ;
+          } else {
+            message = message + ' nextRevision';
+          }
+        })
+      }
+  if (req.body.newEF !== '' && req.body.newEF !== undefined) {
+    console.log(req.body.state);
+    userModel.findOneAndUpdate({
+          "resources.words._id": req.body.word_id.toString()
+        }, {$set: { "resources.words.$.EF": req.body.newEF }}, function (err, success) {
+          if (err) {
+            res.send(err) ;
+          } else {
+            message = message + ' EF';
+          }
+        })
       }
 
   res.send({response: message});
 });
+
+//Get documents with lastHowKnown value of today
+/* app.get('/api/get/lastHowKnown', function(req, res) {
+  let today =  new Date();
+  today.setHours(0,0,0,0);
+  console.log("hoje sem hora" + today);
+  userModel.find({"resources.words.lastHowKnown": {$lte: today.getTime()}}, projection: {words: 1}, function(err, success) {
+    if (success) {
+      res.send(success);
+      console.log("chegou");
+    } else {
+      res.send(err);
+    }
+  })
+  userModel.aggregate()
+}) */
 
   // Deleta uma palavra na conta do usuário
 app.post('/api/delete/word', function(req, res) {
