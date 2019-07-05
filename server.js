@@ -487,7 +487,7 @@ app.post('/api/countquotes', function (req, res) {
 });
 
 app.route('*').get((req, res) => {
-  res.sendFile(__dirname + '/dist/learnquotes/index.html');
+  res.send("Henlo, Hooan!");
 });
 
 app.listen(process.env.PORT || 3000, function () {
