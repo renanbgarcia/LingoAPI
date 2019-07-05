@@ -12,6 +12,7 @@ const textToSpeech = require('@google-cloud/text-to-speech');
 const os = require('os');
 const fs = require('fs');
 var shortid = require('shortid');
+const config = require('./config.js');
 
 
 
@@ -22,7 +23,7 @@ passport.use(new Strategy({
     clientID: '215402490334-nb2ti6j79hki1p8dr7nbms0mqqe6jn42.apps.googleusercontent.com',
     //clientSecret: 'F0rU8bx9idwP0AdJoQaBR9k6',
     clientSecret: 'urH9VjicSoSD_jCyp0tCbMlj',
-    callbackURL: 'http://localhost:3000/auth/google/callback',
+    callbackURL: config.serverURL + '/auth/google/callback',
     //callbackURL: process.env.CALLBACKURL
     userProfileURL: 'https://www.googleapis.com/oauth2/v3/userinfo'
   },
@@ -95,7 +96,6 @@ app.use(passport.session());
 //app.use('/api', ensure.ensureLoggedIn('/'))
 
 // Conecta ao banco
-app.use(express.static(__dirname + '/dist/learnquotes/'));
 
 mongoose.connect('mongodb://master:master258@ds125381.mlab.com:25381/testemongo');
 
@@ -122,7 +122,7 @@ app.get('/auth/google/callback',
     console.log('tokennn: ' + token)
     //res.redirect(req.query.client + '/authorizer?token=' + token);
     res.writeHead(301,
-      {Location: 'http://localhost:4200/authorizer?token=' + token + '&user=' + req.user.id }
+      {Location: config.clientURL + 'authorizer?token=' + token + '&user=' + req.user.id }
     );
     res.end();
   });
@@ -168,14 +168,6 @@ app.post('/api/get/meta', function(req, res) {
     res.send({meta: user.meta});
   })
 })
-
-/* app.post('/api/get/learnedToday', function(req, res) {
-  userModel.find({googleUser_id: req.body.id}, function(err, user) {
-    if (err) {console.log(err);}
-    res.send({res: user.});
-  })
-}) */
-
     //Salva uma citação para o usuário no banco
 app.post('/api/save/quote', function(req, res) {
   console.log(req.body);
@@ -298,22 +290,6 @@ console.log("testando" + today.getTime());
 
   res.send({response: message});
 });
-
-//Get documents with lastHowKnown value of today
-/* app.get('/api/get/lastHowKnown', function(req, res) {
-  let today =  new Date();
-  today.setHours(0,0,0,0);
-  console.log("hoje sem hora" + today);
-  userModel.find({"resources.words.lastHowKnown": {$lte: today.getTime()}}, projection: {words: 1}, function(err, success) {
-    if (success) {
-      res.send(success);
-      console.log("chegou");
-    } else {
-      res.send(err);
-    }
-  })
-  userModel.aggregate()
-}) */
 
   // Deleta uma palavra na conta do usuário
 app.post('/api/delete/word', function(req, res) {
@@ -480,14 +456,13 @@ app.post('/api/countquotes', function (req, res) {
         if (err) {
           res.send(err);
         } else {
-          console.log("     fuuuuuuuuunfoooooooooouuuuuuuuuu!!!!!!!!!")
           res.send({count: doc.resources.quote.length});
         }
       });
 });
 
 app.route('*').get((req, res) => {
-  res.send("Henlo, Hooan!");
+  res.send("Henlo, Hooman!");
 });
 
 app.listen(process.env.PORT || 3000, function () {
