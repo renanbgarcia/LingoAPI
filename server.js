@@ -23,7 +23,7 @@ passport.use(new Strategy({
     clientID: '215402490334-nb2ti6j79hki1p8dr7nbms0mqqe6jn42.apps.googleusercontent.com',
     //clientSecret: 'F0rU8bx9idwP0AdJoQaBR9k6',
     clientSecret: 'urH9VjicSoSD_jCyp0tCbMlj',
-    callbackURL: config.serverURL + '/auth/google/callback',
+    callbackURL: 'https://lingo-api.herokuapp.com' + '/auth/google/callback',
     //callbackURL: process.env.CALLBACKURL
     userProfileURL: 'https://www.googleapis.com/oauth2/v3/userinfo'
   },
@@ -122,7 +122,7 @@ app.get('/auth/google/callback',
     console.log('tokennn: ' + token)
     //res.redirect(req.query.client + '/authorizer?token=' + token);
     res.writeHead(301,
-      {Location: config.clientURL + 'authorizer?token=' + token + '&user=' + req.user.id }
+      {Location: 'http://barretogarcia.com.br/lingotreino/' + 'authorizer?token=' + token + '&user=' + req.user.id }
     );
     res.end();
   });
